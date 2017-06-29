@@ -1,0 +1,71 @@
+apply plugin: 'com.android.application'
+
+android {
+    compileSdkVersion 26
+    buildToolsVersion "26.0.0"
+    defaultConfig {
+        applicationId "com.example.opencvwrapper"
+        minSdkVersion 19
+        targetSdkVersion 26
+        versionCode 1
+        versionName "1.0"
+        testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
+        externalNativeBuild {
+            cmake {
+                cppFlags "-std=c++11"
+            }
+        }
+    }
+    buildTypes {
+        release {
+            minifyEnabled false
+            proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
+        }
+    }
+    externalNativeBuild {
+        cmake {
+            path "CMakeLists.txt"
+        }
+    }
+
+    // copy intermediates into unity project at build time
+    tasks.whenTaskAdded { task ->
+        if (task.name == 'externalNativeBuildDebug') {
+            task.doLast {
+                copy {
+                    from './build/intermediates/cmake/debug/obj/x86'
+                    into '../../../Unity/UnityToOpenCVNative/Assets/Plugins/Android/libs/x86'
+                    include '**/*'
+                }
+
+                copy {
+                    from './build/intermediates/cmake/debug/obj/armeabi-v7a'
+                    into '../../../Unity/UnityToOpenCVNative/Assets/Plugins/Android/libs/armeabi-v7a'
+                    include '**/*'
+                }
+
+                copy {
+                    from './src/main/libs/x86'
+                    into '../../../Unity/UnityToOpenCVNative/Assets/Plugins/Android/libs/x86'
+                    include '**/*'
+                }
+
+                copy {
+                    from './src/main/libs/armeabi-v7a'
+                    into '../../../Unity/UnityToOpenCVNative/Assets/Plugins/Android/libs/armeabi-v7a'
+                    include '**/*'
+                }
+            }
+        }
+    }
+}
+
+dependencies {
+    compile fileTree(dir: 'libs', include: ['*.jar'])
+    androidTestCompile('com.android.support.test.espresso:espresso-core:2.2.2', {
+        exclude group: 'com.android.support', module: 'support-annotations'
+    })
+    compile 'com.android.support:appcompat-v7:26.+'
+    compile 'com.android.support.constraint:constraint-layout:1.0.2'
+    testCompile 'junit:junit:4.12'
+}
