@@ -49,14 +49,16 @@ public class DummyController : MonoBehaviour
             GCHandle pixelHandle = GCHandle.Alloc(pixels, GCHandleType.Pinned);
 
             IntPtr results = NativeLibAdapter.SubmitFrame(wct.width, wct.height, pixelHandle.AddrOfPinnedObject());
-
             int bufferSize = wct.width * wct.height * 4;
             byte[] rawData = new byte[bufferSize];
 
-            Marshal.Copy(results, rawData, 0, bufferSize);
+            if (results != IntPtr.Zero)
+            {
+                Marshal.Copy(results, rawData, 0, bufferSize);
 
-            outTexture.LoadRawTextureData(rawData);
-            outTexture.Apply();
+                outTexture.LoadRawTextureData(rawData);
+                outTexture.Apply();
+            }
             
             InImage.texture = wct;
             OutImage.texture = outTexture;
